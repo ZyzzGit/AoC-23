@@ -5,6 +5,7 @@
 #include <sstream>
 #include <algorithm>
 #include <cmath>
+#include <numeric>
 
 using namespace std;
 
@@ -35,7 +36,7 @@ bool contains(vector<string> strs, string searched_str)
     return false;
 }
 
-int points(string card)
+int count_wins(string card)
 {
     card = split(card, ':')[1];
     vector<string> number_sets = split(card, '|');
@@ -51,12 +52,36 @@ int points(string card)
         }
     }
 
+    return win_count;
+}
+
+int points(string card)
+{
+    int win_count = count_wins(card);
+
     if (win_count > 0)
     {
         return pow(2, win_count - 1);
     }
 
-    return 0;
+    return win_count;
+}
+
+int count_scratchcards(vector<string> cards)
+{
+    vector<int> counts(cards.size(), 1); // counts[x] = amount of card[x]
+
+    for (int i = 0; i < cards.size(); i++)
+    {
+        int win_count = count_wins(cards[i]);
+        // For the following win_count cards (or until end of table)
+        for (int j = i + 1; j < min(i + 1 + win_count, (int)cards.size()); j++)
+        {
+            counts[j] += counts[i]; // for each of current card i, win a card j
+        }
+    }
+
+    return reduce(counts.begin(), counts.end()); // total sum of scratchcards
 }
 
 string line;
@@ -76,7 +101,7 @@ int main()
         p1 += points(card);
     }
 
-    string p2 = "tbd";
+    int p2 = count_scratchcards(lines);
 
     cout << "part 1: "
          << p1 << "\npart 2: "
