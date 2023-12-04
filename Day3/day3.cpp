@@ -18,23 +18,6 @@ vector<string> pad(vector<string> strs, char c)
     return strs;
 }
 
-bool is_symbol(char item)
-{
-    return item != '.' && !isdigit(item);
-}
-
-bool contains_symbol(string items)
-{
-    for (char item : items)
-    {
-        if (is_symbol(item))
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
 // Returns the part numbers adjacent to symbol at padded engine_schematic[posy][posx]
 vector<int> get_adjacent_part_numbers(int posy, int posx, vector<string> engine_schematic)
 {
@@ -61,74 +44,6 @@ vector<int> get_adjacent_part_numbers(int posy, int posx, vector<string> engine_
     return adjacent;
 }
 
-int sum_part_numbers(vector<string> engine_schematic)
-{
-    // Start with padding the schematic to avoid going out of bounds when checking for neighbours
-    // => indexes will go from 1 to size-2 when traversing rows or columns
-    engine_schematic = pad(engine_schematic, '.');
-
-    int sum = 0;
-    for (int i = 1; i < engine_schematic.size() - 1; i++)
-    {
-        string row = engine_schematic[i];
-        for (int j = 1; j < row.size() - 1; j++)
-        {
-            string number = "";
-            while (isdigit(row[j]))
-            {
-                number.push_back(row[j]);
-                j++;
-            }
-
-            if (number == "")
-            {
-                continue;
-            }
-
-            // If number is a number, check if it is a part number; check the number frame for symbols
-            int number_start_pos = j - number.size();
-            if (
-                contains_symbol(engine_schematic[i - 1].substr(number_start_pos - 1, number.size() + 2)) || // upper part of frame
-                is_symbol(row[number_start_pos - 1]) ||                                                     // left element
-                is_symbol(row[j]) ||                                                                        // right element
-                contains_symbol(engine_schematic[i + 1].substr(number_start_pos - 1, number.size() + 2))    // lower part of frame
-            )
-            {
-                sum += stoi(number);
-            }
-        }
-    }
-
-    return sum;
-}
-
-int sum_gear_ratios(vector<string> engine_schematic)
-{
-    engine_schematic = pad(engine_schematic, '.');
-
-    int sum = 0;
-    for (int i = 1; i < engine_schematic.size() - 1; i++)
-    {
-        string row = engine_schematic[i];
-        for (int j = 1; j < row.size() - 1; j++)
-        {
-            if (row[j] != '*')
-            {
-                continue;
-            }
-
-            vector<int> part_numbers = get_adjacent_part_numbers(i, j, engine_schematic);
-
-            if (part_numbers.size() == 2)
-            {
-                sum += part_numbers[0] * part_numbers[1];
-            }
-        }
-    }
-
-    return sum;
-}
-
 string line;
 vector<string> lines;
 int main()
@@ -139,8 +54,36 @@ int main()
         lines.push_back(line);
     }
 
-    int p1 = sum_part_numbers(lines);
-    int p2 = sum_gear_ratios(lines);
+    // Start with padding the schematic to avoid going out of bounds when checking for neighbours
+    // => indexes will go from 1 to size-2 when traversing rows or columns
+    vector<string> engine_schematic = pad(lines, '.');
+
+    int p1 = 0; // part number sum
+    int p2 = 0; // gear ratio sum
+    for (int i = 1; i < engine_schematic.size() - 1; i++)
+    {
+        string row = engine_schematic[i];
+        for (int j = 1; j < row.size() - 1; j++)
+        {
+            if (row[j] == '.' || isdigit(row[j]))
+            {
+                continue;
+            }
+
+            // If symbol, find and add adjacent part numbers
+            vector<int> part_numbers = get_adjacent_part_numbers(i, j, engine_schematic);
+            for (int part_number : part_numbers)
+            {
+                p1 += part_number;
+            }
+
+            // If symbol is gear, also add gear ratio
+            if (row[j] == '*' && part_numbers.size() == 2)
+            {
+                p2 += part_numbers[0] * part_numbers[1];
+            }
+        }
+    }
 
     cout << "part 1: "
          << p1 << "\npart 2: "
