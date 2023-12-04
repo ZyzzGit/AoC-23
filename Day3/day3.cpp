@@ -35,6 +35,32 @@ bool contains_symbol(string items)
     return false;
 }
 
+// Returns the part numbers adjacent to symbol at padded engine_schematic[posy][posx]
+vector<int> get_adjacent_part_numbers(int posy, int posx, vector<string> engine_schematic)
+{
+    vector<int> adjacent = {};
+    for (int i = posy - 1; i <= posy + 1; i++)
+    {
+        for (int j = posx - 1; j <= posx + 1; j++)
+        {
+            if (isdigit(engine_schematic[i][j]))
+            {
+                int number_start_pos = j;
+                while (isdigit(engine_schematic[i][number_start_pos - 1]))
+                {
+                    number_start_pos--;
+                }
+                while (isdigit(engine_schematic[i][j])) // move j to first non-digit item (number_end_pos + 1)
+                {
+                    j++;
+                }
+                adjacent.push_back(stoi(engine_schematic[i].substr(number_start_pos, j - number_start_pos)));
+            }
+        }
+    }
+    return adjacent;
+}
+
 int sum_part_numbers(vector<string> engine_schematic)
 {
     // Start with padding the schematic to avoid going out of bounds when checking for neighbours
@@ -76,6 +102,33 @@ int sum_part_numbers(vector<string> engine_schematic)
     return sum;
 }
 
+int sum_gear_ratios(vector<string> engine_schematic)
+{
+    engine_schematic = pad(engine_schematic, '.');
+
+    int sum = 0;
+    for (int i = 1; i < engine_schematic.size() - 1; i++)
+    {
+        string row = engine_schematic[i];
+        for (int j = 1; j < row.size() - 1; j++)
+        {
+            if (row[j] != '*')
+            {
+                continue;
+            }
+
+            vector<int> part_numbers = get_adjacent_part_numbers(i, j, engine_schematic);
+
+            if (part_numbers.size() == 2)
+            {
+                sum += part_numbers[0] * part_numbers[1];
+            }
+        }
+    }
+
+    return sum;
+}
+
 string line;
 vector<string> lines;
 int main()
@@ -87,7 +140,7 @@ int main()
     }
 
     int p1 = sum_part_numbers(lines);
-    string p2 = "tbd";
+    int p2 = sum_gear_ratios(lines);
 
     cout << "part 1: "
          << p1 << "\npart 2: "
