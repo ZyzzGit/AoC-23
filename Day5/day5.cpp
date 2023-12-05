@@ -3,7 +3,6 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
-#include <map>
 #include <tuple>
 #include <algorithm>
 
@@ -23,63 +22,77 @@ vector<string> split(string str, char separator)
     return result;
 }
 
-map<int, int> get_map(vector<tuple<int, int, int>> map_lines)
+class range_map
 {
-    map<int, int> mp;
+    long long destination_range_start;
+    long long source_range_start;
+    long long range_length;
 
-    for (tuple<int, int, int> map_line : map_lines)
+public:
+    range_map(long long drs, long long srs, long long rl)
     {
-        int destination_range_start = get<0>(map_line);
-        int source_range_start = get<1>(map_line);
-        int range_length = get<2>(map_line);
-
-        for (int i = 0; i < range_length; i++)
-        {
-            mp[source_range_start + i] = destination_range_start + i;
-        }
+        destination_range_start = drs;
+        source_range_start = srs;
+        range_length = rl;
     }
 
-    return mp;
-}
+public:
+    bool contains(long long key)
+    {
+        return source_range_start <= key && key < (source_range_start + range_length);
+    }
 
-vector<int> get_seed_locations(vector<string> almanack)
+public:
+    // Make sure the map contains the key before calling; always returns a value
+    long long map(long long key)
+    {
+
+        return key + (destination_range_start - source_range_start);
+    }
+};
+
+vector<long long> get_seed_locations(vector<string> almanack)
 {
     vector<string> seed_line = split(almanack[0], ' ');
-    vector<int> seeds = {};
+    vector<long long> seeds = {};
     for (int i = 1; i < seed_line.size(); i++)
     {
-        seeds.push_back(stoi(seed_line[i]));
+        seeds.push_back(stoll(seed_line[i]));
     }
 
-    vector<map<int, int>> mps = {};
-    vector<tuple<int, int, int>> map_lines = {};
+    vector<vector<range_map>> range_map_sets = {}; // each set of range maps is equivalent to a "single regular map"
+    vector<range_map> range_maps = {};
 
     almanack.push_back(""); // to easily recognize end of last map_lines set
     for (int i = 3; i < almanack.size(); i++)
     {
-        // When blank line encountered, get the map of previous corresponding map_lines, then reset and continue
+        // When blank line encountered, append the set corresponding to the previous range maps, then reset and continue
         if (almanack[i] == "")
         {
-            mps.push_back(get_map(map_lines));
-            map_lines.clear();
+            range_map_sets.push_back(range_maps);
+            range_maps.clear();
             i++;
             continue;
         }
 
         vector<string> map_line = split(almanack[i], ' ');
-        map_lines.push_back(make_tuple(stoi(map_line[0]), stoi(map_line[1]), stoi(map_line[2])));
+        range_maps.push_back(range_map(stoll(map_line[0]), stoll(map_line[1]), stoll(map_line[2])));
     }
 
-    // Convert, map by map, the seeds to locations
-    vector<int> locations = seeds;
-    for (map<int, int> mp : mps)
+    // Convert, map set by map set, the seeds to locations
+    vector<long long> locations = seeds;
+    for (vector<range_map> range_map_set : range_map_sets)
     {
         for (int i = 0; i < locations.size(); i++)
         {
-            // Only update number if there exists a mapping for it
-            if (mp.count(locations[i]))
+            // Try all range maps in the set, if no map contains the number then keep it
+            for (range_map rmap : range_map_set)
             {
-                locations[i] = mp[locations[i]];
+                if (rmap.contains(locations[i]))
+                {
+                    locations[i] = rmap.map(locations[i]);
+                    break;
+                }
             }
         }
     }
@@ -97,8 +110,8 @@ int main()
         lines.push_back(line);
     }
 
-    vector<int> seed_locations = get_seed_locations(lines);
-    int p1 = *min_element(seed_locations.begin(), seed_locations.end());
+    vector<long long> seed_locations = get_seed_locations(lines);
+    long long p1 = *min_element(seed_locations.begin(), seed_locations.end());
     string p2 = "tbd";
 
     cout << "part 1: "
