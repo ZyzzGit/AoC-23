@@ -1,22 +1,21 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <cmath>
 
 using namespace std;
 
 int ways_to_beat_record(int time, long long record_distance)
 {
-    int count = 0;
-    for (long long t_charge = 1; t_charge < time; t_charge++) // try all combinations not resulting in speed = 0
-    {
-        long long distance = t_charge * (time - t_charge); // distance = speed after charge * time left
-        if (distance > record_distance)
-        {
-            count++;
-        }
-    }
 
-    return count;
+    // d = v * t = t_charge * (t - t_charge)  <=>  d = t_charge * t - (t_charge)^2  <=>  (t_charge)^2 - t * t_charge + d = 0
+    // Solve t_charge by pq-formula
+    double p = -time;
+    double q = record_distance + 1.0; // minimum distance we need to achieve
+    int t_charge_min = ceil(-p / 2.0 - sqrt(pow(-p / 2.0, 2.0) - q));
+    int t_charge_max = floor(-p / 2.0 + sqrt(pow(-p / 2.0, 2.0) - q));
+
+    return t_charge_max - t_charge_min + 1;
 }
 
 int main()
