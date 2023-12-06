@@ -4,12 +4,12 @@
 
 using namespace std;
 
-int ways_to_beat_record(int time, int record_distance)
+int ways_to_beat_record(int time, long long record_distance)
 {
     int count = 0;
-    for (int t_charge = 1; t_charge < time; t_charge++) // try all combinations not resulting in speed = 0
+    for (long long t_charge = 1; t_charge < time; t_charge++) // try all combinations not resulting in speed = 0
     {
-        int distance = t_charge * (time - t_charge); // distance = speed after charge * time left
+        long long distance = t_charge * (time - t_charge); // distance = speed after charge * time left
         if (distance > record_distance)
         {
             count++;
@@ -31,7 +31,8 @@ int main()
         p1 *= ways_to_beat_record(times[i], distances[i]);
     }
 
-    string p2 = "tbd";
+    // Apply kerning to input and rerun
+    int p2 = ways_to_beat_record(38677673, 234102711571236);
 
     cout << "part 1: "
          << p1 << "\npart 2: "
