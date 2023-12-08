@@ -1,27 +1,11 @@
-#include <string>
-#include <vector>
+#include "../auxiliary.h"
 #include <fstream>
 #include <iostream>
-#include <sstream>
 #include <algorithm>
 #include <cmath>
 #include <numeric>
 
 using namespace std;
-
-vector<string> split(string str, char separator)
-{
-    stringstream strstream(str);
-    string segment;
-    vector<string> result;
-
-    while (getline(strstream, segment, separator))
-    {
-        result.push_back(segment);
-    }
-
-    return result;
-}
 
 bool contains(vector<string> strs, string searched_str)
 {

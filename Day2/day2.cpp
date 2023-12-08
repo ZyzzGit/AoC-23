@@ -1,29 +1,12 @@
-#include <string>
-#include <vector>
+#include "../auxiliary.h"
 #include <fstream>
 #include <iostream>
-#include <sstream>
 #include <algorithm>
 
 using namespace std;
 
 vector<string> all_colors = {"red", "green", "blue"};
 vector<int> rgb_bag = {12, 13, 14}; // 12 red, 13 green, 14 blue cubes in the bag
-
-vector<string>
-split(string str, char separator)
-{
-    stringstream strstream(str);
-    string segment;
-    vector<string> result;
-
-    while (getline(strstream, segment, separator))
-    {
-        result.push_back(segment);
-    }
-
-    return result;
-}
 
 vector<vector<int>> str_to_game(string gamestr)
 {

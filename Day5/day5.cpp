@@ -1,26 +1,10 @@
-#include <string>
-#include <vector>
+#include "../auxiliary.h"
 #include <fstream>
 #include <iostream>
-#include <sstream>
 #include <tuple>
 #include <algorithm>
 
 using namespace std;
-
-vector<string> split(string str, char separator)
-{
-    stringstream strstream(str);
-    string segment;
-    vector<string> result;
-
-    while (getline(strstream, segment, separator))
-    {
-        result.push_back(segment);
-    }
-
-    return result;
-}
 
 class range_map
 {

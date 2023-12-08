@@ -1,28 +1,12 @@
-#include <string>
-#include <vector>
+#include "../auxiliary.h"
 #include <fstream>
 #include <iostream>
-#include <sstream>
 #include <cstring>
 #include <algorithm>
 
 using namespace std;
 
 bool jokers = false;
-
-vector<string> split(string str, char separator)
-{
-    stringstream strstream(str);
-    string segment;
-    vector<string> result;
-
-    while (getline(strstream, segment, separator))
-    {
-        result.push_back(segment);
-    }
-
-    return result;
-}
 
 // Returns a list of sorted integers (large first), were each element corresponds to the count of duplicates of an element in cs
 // E.g. cs={'A','K','1','A','J'} => {2, 1, 1, 1} since we have 2 'A', 1 'K', etc...
