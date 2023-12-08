@@ -8,6 +8,8 @@
 
 using namespace std;
 
+bool jokers = false;
+
 vector<string> split(string str, char separator)
 {
     stringstream strstream(str);
@@ -51,6 +53,10 @@ int value(char card)
     {
         return card - '0';
     }
+    else if (jokers && card == 'J')
+    {
+        return 1;
+    }
     else
     {
         vector<char> symbols = {'T', 'J', 'Q', 'K', 'A'};
@@ -69,21 +75,46 @@ struct hand
         bid = b;
     }
 
+    int count(char card)
+    {
+        return std::count(cards, cards + sizeof(cards) / sizeof(char), card);
+    }
+
     bool operator<(hand &h2)
     {
         vector<int> ds1 = count_duplicates(cards, sizeof(cards) / sizeof(char));
         vector<int> ds2 = count_duplicates(h2.cards, sizeof(h2.cards) / sizeof(char));
 
+        // Only for part two: Convert jokers to most the common card when evaluating hand type
+        if (jokers)
+        {
+            int joker_count_1 = count('J');
+            int joker_count_2 = h2.count('J');
+
+            if (joker_count_1 > 0 && ds1.size() > 1) // convert if we have jokers and cards to convert
+            {
+                ds1.erase(find(ds1.begin(), ds1.end(), joker_count_1));
+                ds1[0] += joker_count_1;
+            }
+
+            if (joker_count_2 > 0 && ds2.size() > 1)
+            {
+                ds2.erase(find(ds2.begin(), ds2.end(), joker_count_2));
+                ds2[0] += joker_count_2;
+            }
+        }
+
         if (ds1[0] != ds2[0])
         {
-            return ds1[0] < ds2[0];
+            return ds1[0] < ds2[0]; // first compare the greatest of a kind
         }
-        else if (ds1.size() > 1 && ds2.size() > 1 && ds1[1] != ds2[1])
+        else if (ds1.size() > 1 && ds1[1] != ds2[1])
         {
-            return ds1[1] < ds2[1];
+            return ds1[1] < ds2[1]; // then the second greatest of a kind (pair or single)
         }
         else
         {
+            // lastly, in order, compare the values of each card
             for (int i = 0; i < sizeof(cards) / sizeof(char); i++)
             {
                 if (cards[i] != h2.cards[i])
@@ -93,7 +124,7 @@ struct hand
             }
         }
 
-        return false;
+        return false; // equal hands (should not be reached in this problem)
     }
 };
 
@@ -123,7 +154,15 @@ int main()
         p1 += all_hands[i].bid * rank;
     }
 
-    string p2 = "tbd";
+    jokers = true;
+    sort(all_hands.begin(), all_hands.end());
+
+    int p2 = 0;
+    for (int i = 0; i < all_hands.size(); i++)
+    {
+        int rank = i + 1;
+        p2 += all_hands[i].bid * rank;
+    }
 
     cout << "part 1: "
          << p1 << "\npart 2: "
