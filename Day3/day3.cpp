@@ -1,21 +1,8 @@
-#include <string>
-#include <vector>
+#include "../auxiliary.h"
 #include <fstream>
 #include <iostream>
 
 using namespace std;
-
-vector<string> pad(vector<string> strs, char c)
-{
-    for (int i = 0; i < strs.size(); i++)
-    {
-        strs[i] = (c + strs[i] + c);
-    }
-    int width = strs[0].size();
-    strs.insert(strs.begin(), string(width, c));
-    strs.push_back(string(width, c));
-    return strs;
-}
 
 // Returns the part numbers adjacent to symbol at padded engine_schematic[posy][posx]
 vector<int> get_adjacent_part_numbers(int posy, int posx, vector<string> engine_schematic)

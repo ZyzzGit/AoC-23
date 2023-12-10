@@ -17,3 +17,15 @@ vector<string> split(string str, char separator)
 
     return result;
 }
+
+vector<string> pad(vector<string> strs, char c)
+{
+    for (int i = 0; i < strs.size(); i++)
+    {
+        strs[i] = (c + strs[i] + c);
+    }
+    int width = strs[0].size();
+    strs.insert(strs.begin(), string(width, c));
+    strs.push_back(string(width, c));
+    return strs;
+}
